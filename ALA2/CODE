@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malware Analyzer - Educational Network Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        .warning-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(217, 119, 6, 0.2);
+            border: 1px solid rgba(217, 119, 6, 0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .panel h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .malware-types {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .malware-btn {
+            padding: 16px;
+            border: 2px solid #475569;
+            border-radius: 8px;
+            background: #334155;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .malware-btn:hover {
+            border-color: #64748b;
+            transform: translateY(-2px);
+        }
+
+        .malware-btn.active {
+            border-color: white;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.2);
+        }
+
+        .malware-btn.virus.active {
+            background: #ef4444;
+        }
+
+        .malware-btn.worm.active {
+            background: #f97316;
+        }
+
+        .malware-btn.trojan.active {
+            background: #a855f7;
+        }
+
+        .malware-btn-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .malware-btn-desc {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-start {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #059669;
+        }
+
+        .btn-pause {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #d97706;
+        }
+
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #dc2626;
+        }
+
+        .speed-control {
+            margin-bottom: 10px;
+        }
+
+        .speed-control label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .speed-control input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #475569;
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
+        .speed-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+        }
+
+        .speed-control input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            border: none;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .stat-value.total {
+            color: #60a5fa;
+        }
+
+        .stat-value.infected {
+            color: #ef4444;
+        }
+
+        .stat-value.clean {
+            color: #10b981;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 16px;
+            background: #334155;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ef4444;
+            transition: width 0.5s ease;
+        }
+
+        .network-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .node {
+            aspect-ratio: 1;
+            border: 3px solid;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.4s ease;
+            padding: 8px;
+            cursor: default;
+        }
+
+        .node.clean {
+            background: #10b981;
+            border-color: #34d399;
+        }
+
+        .node.infected {
+            animation: pulse 1.5s infinite;
+            border-color: white;
+        }
+
+        .node.infected.virus {
+            background: #ef4444;
+        }
+
+        .node.infected.worm {
+            background: #f97316;
+        }
+
+        .node.infected.trojan {
+            background: #a855f7;
+        }
+
+        .node-name {
+            font-size: 0.7rem;
+            margin-bottom: 2px;
+        }
+
+        .node-status {
+            font-size: 0.6rem;
+            margin-top: 4px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 0.85;
+            }
+        }
+
+        .logs {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 16px;
+            height: 280px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 8px;
+            line-height: 1.4;
+        }
+
+        .log-time {
+            color: #64748b;
+            flex-shrink: 0;
+        }
+
+        .log-entry.info {
+            color: #94a3b8;
+        }
+
+        .log-entry.warning {
+            color: #fbbf24;
+        }
+
+        .log-entry.danger {
+            color: #ef4444;
+        }
+
+        .logs-empty {
+            color: #64748b;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .logs::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .logs::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        .logs::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        .logs::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .network-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 8px;
+            }
+
+            .node-name {
+                font-size: 0.6rem;
+            }
+
+            .node-status {
+                font-size: 0.55rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .network-grid {
+                gap: 6px;
+            }
+
+            .node {
+                border-width: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦠 Malware Analyzer</h1>
+            <p>Educational Network Simulation System</p>
+            <div class="warning-banner">
+                <span>⚠️</span>
+                <span>Safe Simulation - No Real Malware</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div>
+                <div class="panel">
+                    <h2>🎯 Malware Type</h2>
+                    <div class="malware-types">
+                        <button class="malware-btn virus active" onclick="selectMalware('virus')">
+                            <div class="malware-btn-title">
+                                <span>🦠</span>
+                                <span>Virus</span>
+                            </div>
+                            <div class="malware-btn-desc">Infects adjacent nodes one at a time</div>
+                        </button>
+                        <button class="malware-btn worm" onclick="selectMalware('worm')">
+                            <div class="malware-btn-title">
+                                <span>⚡</span>
+                                <span>Worm</span>
+                            </div>
+                            <div class="malware-btn-desc">Self-replicates rapidly across the network</div>
+                        </button>
+                        <button class="malware-btn trojan" onclick="selectMalware('trojan')">
+                            <div class="malware-btn-title">
+                                <span>🎭</span>
+                                <span>Trojan</span>
+                            </div>
+                            <div class="malware-btn-desc">Spreads to random nodes disguised as normal traffic</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>🎮 Controls</h2>
+                    <div class="controls">
+                        <button class="btn btn-start" id="startBtn" onclick="toggleSimulation()">
+                            <span id="playIcon">▶</span>
+                            <span id="playText">Start</span>
+                        </button>
+                        <button class="btn btn-reset" onclick="resetSimulation()">
+                            <span>↻</span>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                    <div class="speed-control">
+                        <label>⚙️ Speed: <span id="speedLabel">2x</span></label>
+                        <input type="range" id="speedSlider" min="100" max="1000" step="100" value="500" oninput="updateSpeed()">
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>📊 Statistics</h2>
+                    <div class="stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Total Nodes:</span>
+                            <span class="stat-value total" id="totalNodes">36</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Infected:</span>
+                            <span class="stat-value infected" id="infectedNodes">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Clean:</span>
+                            <span class="stat-value clean" id="cleanNodes">36</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="panel">
+                    <h2>
+                        <span id="malwareIcon">🦠</span>
+                        <span>Network Visualization</span>
+                    </h2>
+                    <div class="network-grid" id="networkGrid"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>📝 Activity Logs</h2>
+                    <div class="logs" id="logs">
+                        <div class="logs-empty">No activity yet. Start the simulation to see malware spread.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GRID_SIZE = 6;
+        let nodes = [];
+        let isRunning = false;
+        let malwareType = 'virus';
+        let speed = 500;
+        let intervalId = null;
+
+        const malwareConfig = {
+            virus: { icon: '🦠', class: 'virus' },
+            worm: { icon: '⚡', class: 'worm' },
+            trojan: { icon: '🎭', class: 'trojan' }
+        };
+
+        function initializeNetwork() {
+            nodes = [];
+            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+                nodes.push({
+                    id: i,
+                    status: 'clean',
+                    x: i % GRID_SIZE,
+                    y: Math.floor(i / GRID_SIZE),
+                    name: 'Node-' + (i + 1)
+                });
+            }
+            renderNetwork();
+            updateStats();
+            clearLogs();
+        }
+
+        function renderNetwork() {
+            const grid = document.getElementById('networkGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node ' + node.status + (node.status === 'infected' ? ' ' + malwareType : '');
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'node-name';
+                nameDiv.textContent = node.name;
+                
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'node-status';
+                statusDiv.textContent = node.status === 'infected' ? '⚠️ Infected' : '✓ Clean';
+                
+                nodeEl.appendChild(nameDiv);
+                nodeEl.appendChild(statusDiv);
+                grid.appendChild(nodeEl);
+            }
+        }
+
+        function updateStats() {
+            let infected = 0;
+            let clean = 0;
+            
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].status === 'infected') {
+                    infected++;
+                } else {
+                    clean++;
+                }
+            }
+            
+            const total = nodes.length;
+            
+            document.getElementById('infectedNodes').textContent = infected;
+            document.getElementById('cleanNodes').textContent = clean;
+            document.getElementById('totalNodes').textContent = total;
+            
+            const percentage = (infected / total) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function addLog(message, type) {
+            type = type || 'info';
+            const logsDiv = document.getElementById('logs');
+            
+            if (logsDiv.querySelector('.logs-empty')) {
+                logsDiv.innerHTML = '';
+            }
+
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry ' + type;
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.textContent = '[' + timestamp + ']';
+            
+            const msgSpan = document.createElement('span');
+            msgSpan.textContent = message;
+            
+            logEntry.appendChild(timeSpan);
+            logEntry.appendChild(msgSpan);
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '<div class="logs-empty">No activity yet. Start the simulation to see malware spread.</div>';
+        }
+
+        function getAdjacentNodes(nodeId) {
+            const node = nodes[nodeId];
+            const adjacent = [];
+            const directions = [
+                { dx: -1, dy: 0 }, 
+                { dx: 1, dy: 0 },
+                { dx: 0, dy: -1 }, 
+                { dx: 0, dy: 1 }
+            ];
+
+            for (let i = 0; i < directions.length; i++) {
+                const dir = directions[i];
+                const newX = node.x + dir.dx;
+                const newY = node.y + dir.dy;
+                
+                if (newX >= 0 && newX < GRID_SIZE && newY >= 0 && newY < GRID_SIZE) {
+                    for (let j = 0; j < nodes.length; j++) {
+                        const n = nodes[j];
+                        if (n.x === newX && n.y === newY && n.status === 'clean') {
+                            adjacent.push(n.id);
+                            break;
+                        }
+                    }
+                }
+            }
+            return adjacent;
+        }
+
+        function spreadVirus() {
+            const infected = [];
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].status === 'infected') {
+                    infected.push(nodes[i]);
+                }
+            }
+            
+            if (infected.length === 0) return;
+
+            for (let i = 0; i < infected.length; i++) {
+                const infectedNode = infected[i];
+                const adjacent = getAdjacentNodes(infectedNode.id);
+                
+                if (adjacent.length > 0) {
+                    const targetId = adjacent[Math.floor(Math.random() * adjacent.length)];
+                    
+                    for (let j = 0; j < nodes.length; j++) {
+                        if (nodes[j].id === targetId && nodes[j].status === 'clean') {
+                            nodes[j].status = 'infected';
+                            addLog('Virus spread from ' + infectedNode.name + ' to ' + nodes[j].name, 'danger');
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        function spreadWorm() {
+            const infected = [];
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].status === 'infected') {
+                    infected.push(nodes[i]);
+                }
+            }
+            
+            if (infected.length === 0) return;
+
+            for (let i = 0; i < infected.length; i++) {
+                const infectedNode = infected[i];
+                const adjacent = getAdjacentNodes(infectedNode.id);
+                
+                for (let j = 0; j < adjacent.length; j++) {
+                    const targetId = adjacent[j];
+                    
+                    if (Math.random() > 0.3) {
+                        for (let k = 0; k < nodes.length; k++) {
+                            if (nodes[k].id === targetId && nodes[k].status === 'clean') {
+                                nodes[k].status = 'infected';
+                                addLog('Worm replicated from ' + infectedNode.name + ' to ' + nodes[k].name, 'danger');
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function spreadTrojan() {
+            const infected = [];
+            const clean = [];
+            
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].status === 'infected') {
+                    infected.push(nodes[i]);
+                } else {
+                    clean.push(nodes[i]);
+                }
+            }
+            
+            if (infected.length === 0 || clean.length === 0) return;
+
+            if (Math.random() > 0.5) {
+                const randomClean = clean[Math.floor(Math.random() * clean.length)];
+                randomClean.status = 'infected';
+                addLog('Trojan infiltrated ' + randomClean.name + ' via disguised traffic', 'danger');
+            }
+        }
+
+        function spreadMalware() {
+            let cleanCount = 0;
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].status === 'clean') {
+                    cleanCount++;
+                }
+            }
+            
+            if (cleanCount === 0) {
+                stopSimulation();
+                addLog('All nodes infected! Simulation complete.', 'warning');
+                return;
+            }
+
+            if (malwareType === 'virus') {
+                spreadVirus();
+            } else if (malwareType === 'worm') {
+                spreadWorm();
+            } else if (malwareType === 'trojan') {
+                spreadTrojan();
+            }
+
+            renderNetwork();
+            updateStats();
+        }
+
+        function startSimulation() {
+            let hasInfected = false;
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].status === 'infected') {
+                    hasInfected = true;
+                    break;
+                }
+            }
+            
+            if (!hasInfected) {
+                const centerNode = Math.floor(GRID_SIZE * GRID_SIZE / 2);
+                nodes[centerNode].status = 'infected';
+                const malwareName = malwareType.charAt(0).toUpperCase() + malwareType.slice(1);
+                addLog(malwareName + ' initiated at ' + nodes[centerNode].name, 'warning');
+                renderNetwork();
+                updateStats();
+            }
+
+            isRunning = true;
+            document.getElementById('playIcon').textContent = '⏸';
+            document.getElementById('playText').textContent = 'Pause';
+            document.getElementById('startBtn').className = 'btn btn-pause';
+            document.getElementById('speedSlider').disabled = true;
+
+            intervalId = setInterval(function() {
+                spreadMalware();
+            }, speed);
+        }
+
+        function stopSimulation() {
+            isRunning = false;
+            document.getElementById('playIcon').textContent = '▶';
+            document.getElementById('playText').textContent = 'Start';
+            document.getElementById('startBtn').className = 'btn btn-start';
+            document.getElementById('speedSlider').disabled = false;
+
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+        }
+
+        function toggleSimulation() {
+            if (isRunning) {
+                stopSimulation();
+            } else {
+                startSimulation();
+            }
+        }
+
+        function resetSimulation() {
+            stopSimulation();
+            initializeNetwork();
+            addLog('Network reset to clean state', 'info');
+        }
+
+        function selectMalware(type) {
+            if (isRunning) {
+                stopSimulation();
+            }
+
+            malwareType = type;
+            
+            const buttons = document.querySelectorAll('.malware-btn');
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+            
+            const activeBtn = document.querySelector('.malware-btn.' + type);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            document.getElementById('malwareIcon').textContent = malwareConfig[type].icon;
+
+            initializeNetwork();
+            const malwareName = type.charAt(0).toUpperCase() + type.slice(1);
+            addLog('Malware type changed to ' + malwareName, 'info');
+        }
+
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            speed = parseInt(slider.value);
+            const speedMultiplier = (1000 / speed).toFixed(1);
+            document.getElementById('speedLabel').textContent = speedMultiplier + 'x';
+
+            if (isRunning) {
+                stopSimulation();
+                startSimulation();
+            }
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            initializeNetwork();
+        };
+    </script>
+</body>
+</html>
